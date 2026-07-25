@@ -1,0 +1,226 @@
+[
+  {
+    "id": "enq-001",
+    "label": "Clear ERP vendor selection",
+    "description": "We are a mid-sized manufacturing company struggling with fragmented legacy systems across our three production facilities. We need an external consulting partner to help us rigorously evaluate and down-select three shortlist ERP vendors (SAP S/4HANA, NetSuite, and Microsoft Dynamics 365) prior to our upcoming Board of Directors meeting next month. Deliverables must include a comparative capability matrix, total cost of ownership (TCO) analysis over a 5-year horizon, and risk assessment for implementation downtime.",
+    "industry": "Manufacturing",
+    "companySize": "500-1000",
+    "urgency": "high"
+  },
+  {
+    "id": "enq-002",
+    "label": "SOC 2 audit prep",
+    "description": "Our annual Type II SOC 2 audit window opens in late Q3, and we need an expert third-party review of our current security control documentation, access policies, and incident response playbook. Over the last year, we scaled our engineering team significantly, which led to inconsistent documentation practices. We need a gap analysis performed, updated policy templates tailored to our SaaS architecture, and hands-on remediation support before the auditor fieldwork begins.",
+    "industry": "SaaS",
+    "companySize": "100-250",
+    "urgency": "medium"
+  },
+  {
+    "id": "enq-003",
+    "label": "Ambiguous growth + ops",
+    "description": "Our year-over-year revenue growth has completely stalled over the last two quarters, while our customer support and fulfillment teams are simultaneously drowning in daily operational friction. We aren't sure whether this is primarily a product-market fit issue, poor cross-channel marketing execution, or internal operational bottlenecks. We need a strategic advisory engagement to audit our end-to-end customer journey and internal workflows, identify the primary root causes, and propose a prioritized 90-day turnaround plan.",
+    "industry": "Retail",
+    "companySize": "50-200",
+    "urgency": "medium"
+  },
+  {
+    "id": "enq-004",
+    "label": "Market entry strategy",
+    "description": "Exploring expansion into Southeast Asia and need a market entry assessment with competitive landscape analysis.",
+    "industry": "Consumer Goods",
+    "companySize": "1000-5000",
+    "urgency": "medium"
+  },
+  {
+    "id": "enq-005",
+    "label": "Warehouse process redesign",
+    "description": "Our warehouse pick-pack cycle times are 40% above benchmark. Looking for a lean process redesign.",
+    "industry": "Logistics",
+    "companySize": "200-500",
+    "urgency": "low"
+  },
+  {
+    "id": "enq-006",
+    "label": "Cloud migration",
+    "description": "Migrate legacy on-prem CRM and billing systems to AWS with minimal downtime over two quarters.",
+    "industry": "Financial Services",
+    "companySize": "500-1000",
+    "urgency": "high"
+  },
+  {
+    "id": "enq-007",
+    "label": "GDPR remediation",
+    "description": "Regulator flagged gaps in our GDPR data retention policies. Need remediation plan within 30 days.",
+    "industry": "Healthcare",
+    "companySize": "250-500",
+    "urgency": "high"
+  },
+  {
+    "id": "enq-008",
+    "label": "Executive compensation review",
+    "description": "Board requested an executive compensation benchmarking study against peer fintech companies.",
+    "industry": "Fintech",
+    "companySize": "100-250",
+    "urgency": "low"
+  },
+  {
+    "id": "enq-009",
+    "label": "Vague one-liner",
+    "description": "We need consulting help.",
+    "industry": "Unknown",
+    "companySize": "1-50",
+    "urgency": "low"
+  },
+  {
+    "id": "enq-010",
+    "label": "Multi-service AI + compliance",
+    "description": "Want to deploy an internal AI chatbot on customer data but legal is worried about privacy compliance.",
+    "industry": "Insurance",
+    "companySize": "1000-5000",
+    "urgency": "high"
+  },
+  {
+    "id": "enq-011",
+    "label": "Supply chain optimization",
+    "description": "Post-pandemic supplier lead times are unstable. Need end-to-end supply chain diagnostics and sourcing strategy.",
+    "industry": "Automotive",
+    "companySize": "5000+",
+    "urgency": "medium"
+  },
+  {
+    "id": "enq-012",
+    "label": "Post-merger integration",
+    "description": "Closed an acquisition last quarter. Need integration playbook across finance, HR, and IT operating models.",
+    "industry": "Professional Services",
+    "companySize": "1000-5000",
+    "urgency": "high"
+  },
+  {
+    "id": "enq-013",
+    "label": "Employee retention program",
+    "description": "Voluntary attrition hit 22% this year. Need a retention diagnostic and manager enablement program.",
+    "industry": "Technology",
+    "companySize": "250-500",
+    "urgency": "medium"
+  },
+  {
+    "id": "enq-014",
+    "label": "Simple policy update",
+    "description": "Update our remote work policy to align with new state labor regulations.",
+    "industry": "Media",
+    "companySize": "50-200",
+    "urgency": "low"
+  },
+  {
+    "id": "enq-015",
+    "label": "Data platform build",
+    "description": "Build a modern data lakehouse on Snowflake with self-serve analytics for product and finance teams.",
+    "industry": "E-commerce",
+    "companySize": "500-1000",
+    "urgency": "medium"
+  },
+  {
+    "id": "enq-016",
+    "label": "Cost takeout program",
+    "description": "Private equity sponsor wants 15% SG&A reduction within 12 months without impacting growth investments.",
+    "industry": "Business Services",
+    "companySize": "1000-5000",
+    "urgency": "high"
+  },
+  {
+    "id": "enq-017",
+    "label": "SOX controls testing",
+    "description": "Need support running SOX 404 control testing before external audit fieldwork starts.",
+    "industry": "Banking",
+    "companySize": "5000+",
+    "urgency": "medium"
+  },
+  {
+    "id": "enq-018",
+    "label": "Talent acquisition redesign",
+    "description": "Hiring cycle averages 92 days for engineering roles. Want to redesign recruiting workflow and employer brand.",
+    "industry": "Software",
+    "companySize": "200-500",
+    "urgency": "medium"
+  },
+  {
+    "id": "enq-019",
+    "label": "API integration",
+    "description": "Integrate Shopify storefront with NetSuite inventory in six weeks for holiday peak season.",
+    "industry": "Retail",
+    "companySize": "50-200",
+    "urgency": "high"
+  },
+  {
+    "id": "enq-020",
+    "label": "Board strategy offsite",
+    "description": "Facilitate a two-day board strategy offsite to define three-year growth priorities.",
+    "industry": "Energy",
+    "companySize": "500-1000",
+    "urgency": "low"
+  },
+  {
+    "id": "enq-021",
+    "label": "Procurement centralization",
+    "description": "Decentralized procurement is causing maverick spend. Need a centralization roadmap and category management setup.",
+    "industry": "Hospitality",
+    "companySize": "1000-5000",
+    "urgency": "medium"
+  },
+  {
+    "id": "enq-022",
+    "label": "Cybersecurity risk assessment",
+    "description": "Cyber insurance renewal requires independent risk assessment and remediation plan for critical assets.",
+    "industry": "Legal",
+    "companySize": "100-250",
+    "urgency": "high"
+  },
+  {
+    "id": "enq-023",
+    "label": "DEI program design",
+    "description": "Design a DEI program with measurable goals, leadership training, and employee resource group structure.",
+    "industry": "Consulting",
+    "companySize": "250-500",
+    "urgency": "low"
+  },
+  {
+    "id": "enq-024",
+    "label": "Legacy mainframe modernization",
+    "description": "Core banking mainframe is end-of-life. Need phased modernization strategy with regulator engagement across three regions.",
+    "industry": "Banking",
+    "companySize": "5000+",
+    "urgency": "high"
+  },
+  {
+    "id": "enq-025",
+    "label": "Pricing strategy",
+    "description": "Subscription pricing hasn't changed in four years. Need elasticity analysis and packaging recommendations.",
+    "industry": "SaaS",
+    "companySize": "100-250",
+    "urgency": "medium"
+  },
+  {
+    "id": "enq-026",
+    "label": "Cross-border tax compliance",
+    "description": "Expanding to EU and APAC entities. Need transfer pricing documentation and indirect tax compliance framework.",
+    "industry": "Manufacturing",
+    "companySize": "1000-5000",
+    "urgency": "medium"
+  },
+  {
+    "id": "enq-027",
+    "label": "Helpdesk automation",
+    "description": "IT helpdesk ticket volume up 60%. Want to automate tier-1 requests with a service portal and chatbot.",
+    "industry": "Education",
+    "companySize": "500-1000",
+    "urgency": "medium"
+  },
+  {
+    "id": "enq-028",
+    "label": "Org restructure",
+    "description": "Planning a reorg from functional to business-unit structure affecting 800 roles across four countries.",
+    "industry": "Pharma",
+    "companySize": "5000+",
+    "urgency": "high"
+  }
+]
