@@ -1,7 +1,7 @@
 import Groq from "groq-sdk";
 import { classificationSchema, type EnquiryInput } from "./types";
 
-const MODEL = "llama-3.1-8b-instant";
+const MODEL = "llama-3.3-70b-versatile";
 
 const SYSTEM_PROMPT = `You are an intake triage assistant for a professional services firm.
 Classify inbound client enquiries into exactly one service line and one complexity level.

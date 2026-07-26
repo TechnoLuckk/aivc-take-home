@@ -187,6 +187,19 @@ function ResultsTable({ results }: { results: TriageResult[] }) {
 function DashboardView() {
   const [teamLoads, setTeamLoads] = useState<TeamLoad[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedTeams, setExpandedTeams] = useState<Set<string>>(new Set());
+
+  const toggleTeam = useCallback((teamId: string) => {
+    setExpandedTeams((prev) => {
+      const next = new Set(prev);
+      if (next.has(teamId)) {
+        next.delete(teamId);
+      } else {
+        next.add(teamId);
+      }
+      return next;
+    });
+  }, []);
 
   const fetchLoads = useCallback(async () => {
     try {
@@ -285,19 +298,25 @@ function DashboardView() {
               <span>{intakeReviewLoad.team.capacity} capacity</span>
             </div>
             {intakeReviewLoad.assignments.length > 0 && (
-              <div className="space-y-1.5 pt-1">
-                {intakeReviewLoad.assignments.slice(-3).map((a, i) => (
-                  <div
-                    key={`${a.teamId}-${i}`}
-                    className="rounded-md bg-zinc-50 px-2.5 py-1.5 text-xs text-zinc-800"
-                  >
-                    <span className="font-medium">{a.complexity}</span> · {truncate(a.description, 50)}
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => toggleTeam(intakeReviewLoad.team.id)}
+                  className="text-xs font-medium text-blue-700 hover:text-blue-900 transition-colors"
+                >
+                  {expandedTeams.has(intakeReviewLoad.team.id) ? "Hide tasks" : "Show tasks"}
+                </button>
+                {expandedTeams.has(intakeReviewLoad.team.id) && (
+                  <div className="mt-2 space-y-1.5">
+                    {intakeReviewLoad.assignments.map((a, i) => (
+                      <div
+                        key={`${a.teamId}-${i}`}
+                        className="rounded-md bg-zinc-50 px-2.5 py-1.5 text-xs text-zinc-800"
+                      >
+                        <span className="font-medium">{a.complexity}</span> · {a.description}
+                      </div>
+                    ))}
                   </div>
-                ))}
-                {intakeReviewLoad.assignments.length > 3 && (
-                  <p className="text-xs text-zinc-600">
-                    +{intakeReviewLoad.assignments.length - 3} more
-                  </p>
                 )}
               </div>
             )}
@@ -335,19 +354,25 @@ function DashboardView() {
                   <span>{tl.team.capacity} capacity</span>
                 </div>
                 {tl.assignments.length > 0 && (
-                  <div className="space-y-1.5 pt-1">
-                    {tl.assignments.slice(-3).map((a, i) => (
-                      <div
-                        key={`${a.teamId}-${i}`}
-                        className="rounded-md bg-zinc-50 px-2.5 py-1.5 text-xs text-zinc-800"
-                      >
-                        <span className="font-medium">{a.complexity}</span> · {truncate(a.description, 40)}
+                  <div className="pt-1">
+                    <button
+                      type="button"
+                      onClick={() => toggleTeam(tl.team.id)}
+                      className="text-xs font-medium text-blue-700 hover:text-blue-900 transition-colors"
+                    >
+                      {expandedTeams.has(tl.team.id) ? "Hide tasks" : "Show tasks"}
+                    </button>
+                    {expandedTeams.has(tl.team.id) && (
+                      <div className="mt-2 space-y-1.5">
+                        {tl.assignments.map((a, i) => (
+                          <div
+                            key={`${a.teamId}-${i}`}
+                            className="rounded-md bg-zinc-50 px-2.5 py-1.5 text-xs text-zinc-800"
+                          >
+                            <span className="font-medium">{a.complexity}</span> · {a.description}
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                    {tl.assignments.length > 3 && (
-                      <p className="text-xs text-zinc-600">
-                        +{tl.assignments.length - 3} more
-                      </p>
                     )}
                   </div>
                 )}

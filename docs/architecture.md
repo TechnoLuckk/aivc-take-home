@@ -72,7 +72,7 @@ flowchart TB
 The system has two classification paths with distinct behavior:
 
 ### LLM path (primary)
-- Calls Groq (`llama-3.1-8b-instant`) with structured JSON output, temperature 0.
+- Calls Groq (`llama-3.3-70b-versatile`) with structured JSON output, temperature 0.
 - System prompt defines 5 service lines, complexity rubric, and review triggers.
 - 3 few-shot examples embedded in the user prompt for calibration.
 - LLM self-reports confidence and sets `needsHumanReview` when uncertain.
@@ -108,7 +108,7 @@ The intake review queue (`intake-review@firm.com`) is tracked as a separate enti
 |-------|----------------------|-------------------|
 | Intake | Next.js form UI | HubSpot / Typeform webhook |
 | Processing | Synchronous API route | Async worker (Lambda, Cloud Run, or queue consumer) |
-| Classification | Groq `llama-3.1-8b-instant` | Hybrid: fine-tuned classifier for common cases + LLM for edge cases |
+| Classification | Groq `llama-3.3-70b-versatile` | Hybrid: fine-tuned classifier for common cases + LLM for edge cases |
 | Routing | In-process TypeScript rules with in-memory load tracking | Same rules module, versioned and unit-tested, with Redis/DB-backed load state |
 | Team pool | 15 teams (3 per service line) + intake review queue | Same structure, sized from historical volume data |
 | Storage | None (in-memory Map, resets on cold start) | Postgres / CRM with audit trail, Redis for shared load state |
