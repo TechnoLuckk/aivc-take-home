@@ -1,10 +1,10 @@
 "use client";
 
 import syntheticEnquiries from "@/data/synthetic-enquiries.json";
-import type { EnquiryInput, TriageResult } from "@/lib/types";
-import { useMemo, useState } from "react";
+import type { EnquiryInput, TriageResult, TeamLoad, ServiceLine } from "@/lib/types";
+import { useMemo, useState, useEffect, useCallback } from "react";
 
-type TabId = "submit" | "batch" | "review";
+type TabId = "submit" | "batch" | "review" | "dashboard";
 
 const emptyForm: EnquiryInput = {
   description: "",
@@ -12,6 +12,14 @@ const emptyForm: EnquiryInput = {
   companySize: "",
   urgency: "medium",
 };
+
+const SERVICE_LINES: ServiceLine[] = [
+  "Strategy",
+  "Operations",
+  "Technology",
+  "Compliance",
+  "HR Advisory",
+];
 
 function truncate(text: string, max = 72): string {
   return text.length <= max ? text : `${text.slice(0, max)}…`;
@@ -29,6 +37,24 @@ function ConfidenceBadge({ value }: { value: number }) {
     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${tone}`}>
       {(value * 100).toFixed(0)}%
     </span>
+  );
+}
+
+function UtilizationBar({ percent }: { percent: number }) {
+  const color =
+    percent >= 85
+      ? "bg-rose-500"
+      : percent >= 60
+        ? "bg-amber-500"
+        : "bg-emerald-500";
+
+  return (
+    <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-200">
+      <div
+        className={`h-full rounded-full transition-all duration-500 ${color}`}
+        style={{ width: `${Math.min(100, percent)}%` }}
+      />
+    </div>
   );
 }
 
@@ -52,34 +78,38 @@ function ResultCard({ result }: { result: TriageResult }) {
 
       <dl className="grid gap-3 text-sm sm:grid-cols-2">
         <div>
-          <dt className="font-medium text-zinc-500">Assigned team lead</dt>
-          <dd className="text-zinc-900">{result.routing.assignedTeamLead}</dd>
+          <dt className="font-medium text-zinc-800">Assigned team</dt>
+          <dd className="text-zinc-950">{result.routing.assignedTeamName}</dd>
         </div>
         <div>
-          <dt className="font-medium text-zinc-500">Priority / SLA</dt>
-          <dd className="text-zinc-900">
+          <dt className="font-medium text-zinc-800">Team lead</dt>
+          <dd className="text-zinc-950">{result.routing.assignedTeamLead}</dd>
+        </div>
+        <div>
+          <dt className="font-medium text-zinc-800">Priority / SLA</dt>
+          <dd className="text-zinc-950">
             {result.routing.priority} · {result.routing.slaHours}h
           </dd>
         </div>
         <div>
-          <dt className="font-medium text-zinc-500">Source</dt>
-          <dd className="capitalize text-zinc-900">{result.source}</dd>
+          <dt className="font-medium text-zinc-800">Source</dt>
+          <dd className="capitalize text-zinc-950">{result.source}</dd>
         </div>
         <div>
-          <dt className="font-medium text-zinc-500">Status</dt>
-          <dd className="text-zinc-900">{result.status}</dd>
+          <dt className="font-medium text-zinc-800">Status</dt>
+          <dd className="text-zinc-950">{result.status}</dd>
         </div>
         <div className="sm:col-span-2">
-          <dt className="font-medium text-zinc-500">Reasoning</dt>
-          <dd className="text-zinc-900">{result.classification.reasoning}</dd>
+          <dt className="font-medium text-zinc-800">Reasoning</dt>
+          <dd className="text-zinc-950">{result.classification.reasoning}</dd>
         </div>
         <div className="sm:col-span-2">
-          <dt className="font-medium text-zinc-500">Tags</dt>
+          <dt className="font-medium text-zinc-800">Tags</dt>
           <dd className="flex flex-wrap gap-2">
             {result.classification.suggestedTags.map((tag) => (
               <span
                 key={tag}
-                className="rounded-md bg-white px-2 py-1 text-xs text-zinc-700 ring-1 ring-zinc-200"
+                className="rounded-md bg-white px-2 py-1 text-xs text-zinc-800 ring-1 ring-zinc-200"
               >
                 {tag}
               </span>
@@ -100,7 +130,7 @@ function ResultCard({ result }: { result: TriageResult }) {
 function ResultsTable({ results }: { results: TriageResult[] }) {
   if (results.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-zinc-300 p-8 text-center text-zinc-500">
+      <p className="rounded-xl border border-dashed border-zinc-300 p-8 text-center text-zinc-700">
         No results yet. Run batch triage to populate this view.
       </p>
     );
@@ -109,11 +139,12 @@ function ResultsTable({ results }: { results: TriageResult[] }) {
   return (
     <div className="overflow-x-auto rounded-xl border border-zinc-200">
       <table className="min-w-full divide-y divide-zinc-200 text-left text-sm">
-        <thead className="bg-zinc-50 text-zinc-600">
+        <thead className="bg-zinc-50 text-zinc-800">
           <tr>
             <th className="px-4 py-3 font-medium">Enquiry</th>
             <th className="px-4 py-3 font-medium">Service line</th>
             <th className="px-4 py-3 font-medium">Complexity</th>
+            <th className="px-4 py-3 font-medium">Team</th>
             <th className="px-4 py-3 font-medium">Team lead</th>
             <th className="px-4 py-3 font-medium">Confidence</th>
             <th className="px-4 py-3 font-medium">Review</th>
@@ -122,32 +153,209 @@ function ResultsTable({ results }: { results: TriageResult[] }) {
         <tbody className="divide-y divide-zinc-100 bg-white">
           {results.map((result, index) => (
             <tr key={`${result.input.description}-${index}`}>
-              <td className="max-w-xs px-4 py-3 text-zinc-900">
+              <td className="max-w-xs px-4 py-3 text-zinc-950">
                 <div className="font-medium">{truncate(result.input.description)}</div>
-                <div className="mt-1 text-xs text-zinc-500">
+                <div className="mt-1 text-xs text-zinc-700">
                   {result.input.industry} · {result.input.companySize} ·{" "}
                   {result.input.urgency}
                 </div>
               </td>
-              <td className="px-4 py-3">{result.classification.serviceLine}</td>
-              <td className="px-4 py-3 capitalize">
+              <td className="px-4 py-3 text-zinc-950">{result.classification.serviceLine}</td>
+              <td className="px-4 py-3 capitalize text-zinc-950">
                 {result.classification.complexity}
               </td>
-              <td className="px-4 py-3 text-xs">{result.routing.assignedTeamLead}</td>
+              <td className="px-4 py-3 text-xs font-medium text-zinc-900">{result.routing.assignedTeamName}</td>
+              <td className="px-4 py-3 text-xs text-zinc-900">{result.routing.assignedTeamLead}</td>
               <td className="px-4 py-3">
                 <ConfidenceBadge value={result.classification.confidence} />
               </td>
               <td className="px-4 py-3">
                 {result.routing.routeToIntakeReview ? (
-                  <span className="text-orange-700">Yes</span>
+                  <span className="font-medium text-orange-700">Yes</span>
                 ) : (
-                  <span className="text-zinc-400">No</span>
+                  <span className="text-zinc-600">No</span>
                 )}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+function DashboardView() {
+  const [teamLoads, setTeamLoads] = useState<TeamLoad[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchLoads = useCallback(async () => {
+    try {
+      const response = await fetch("/api/triage");
+      const data = await response.json();
+      setTeamLoads(data.teams ?? []);
+    } catch {
+      // silently fail
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchLoads();
+  }, [fetchLoads]);
+
+  const grouped = useMemo(() => {
+    const map: Record<ServiceLine, TeamLoad[]> = {
+      Strategy: [],
+      Operations: [],
+      Technology: [],
+      Compliance: [],
+      "HR Advisory": [],
+    };
+    for (const tl of teamLoads) {
+      if (tl.team.id === "intake-review") continue;
+      map[tl.team.serviceLine].push(tl);
+    }
+    return map;
+  }, [teamLoads]);
+
+  const intakeReviewLoad = useMemo(
+    () => teamLoads.find((tl) => tl.team.id === "intake-review") ?? null,
+    [teamLoads],
+  );
+
+  const namedTeamLoads = useMemo(
+    () => teamLoads.filter((tl) => tl.team.id !== "intake-review"),
+    [teamLoads],
+  );
+
+  const totalAssignments = namedTeamLoads.reduce((s, t) => s + t.assignments.length, 0);
+  const avgUtilization =
+    namedTeamLoads.length > 0
+      ? Math.round(namedTeamLoads.reduce((s, t) => s + t.utilizationPercent, 0) / namedTeamLoads.length)
+      : 0;
+
+  if (loading) {
+    return (
+      <p className="rounded-xl border border-dashed border-zinc-300 p-8 text-center text-zinc-700">
+        Loading dashboard...
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="rounded-xl border border-zinc-200 bg-white p-5">
+          <p className="text-sm font-medium text-zinc-800">Total teams</p>
+          <p className="mt-1 text-3xl font-semibold text-zinc-950">{namedTeamLoads.length}</p>
+        </div>
+        <div className="rounded-xl border border-zinc-200 bg-white p-5">
+          <p className="text-sm font-medium text-zinc-800">Active assignments</p>
+          <p className="mt-1 text-3xl font-semibold text-zinc-950">{totalAssignments + (intakeReviewLoad?.assignments.length ?? 0)}</p>
+        </div>
+        <div className="rounded-xl border border-zinc-200 bg-white p-5">
+          <p className="text-sm font-medium text-zinc-800">Avg utilization</p>
+          <p className="mt-1 text-3xl font-semibold text-zinc-950">{avgUtilization}%</p>
+        </div>
+      </div>
+
+      {intakeReviewLoad && (
+        <div>
+          <h3 className="mb-3 text-lg font-semibold text-zinc-950">Intake Review Queue</h3>
+          <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-medium text-zinc-950">{intakeReviewLoad.team.name}</span>
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                  intakeReviewLoad.utilizationPercent >= 85
+                    ? "bg-rose-100 text-rose-800"
+                    : intakeReviewLoad.utilizationPercent >= 60
+                      ? "bg-amber-100 text-amber-800"
+                      : "bg-emerald-100 text-emerald-800"
+                }`}
+              >
+                {intakeReviewLoad.utilizationPercent}%
+              </span>
+            </div>
+            <p className="text-xs text-zinc-700">{intakeReviewLoad.team.teamLead}</p>
+            <UtilizationBar percent={intakeReviewLoad.utilizationPercent} />
+            <div className="flex justify-between text-xs text-zinc-700">
+              <span>{intakeReviewLoad.assignments.length} pending reviews</span>
+              <span>{intakeReviewLoad.team.capacity} capacity</span>
+            </div>
+            {intakeReviewLoad.assignments.length > 0 && (
+              <div className="space-y-1.5 pt-1">
+                {intakeReviewLoad.assignments.slice(-3).map((a, i) => (
+                  <div
+                    key={`${a.teamId}-${i}`}
+                    className="rounded-md bg-zinc-50 px-2.5 py-1.5 text-xs text-zinc-800"
+                  >
+                    <span className="font-medium">{a.complexity}</span> · {truncate(a.description, 50)}
+                  </div>
+                ))}
+                {intakeReviewLoad.assignments.length > 3 && (
+                  <p className="text-xs text-zinc-600">
+                    +{intakeReviewLoad.assignments.length - 3} more
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {SERVICE_LINES.map((sl) => (
+        <div key={sl}>
+          <h3 className="mb-3 text-lg font-semibold text-zinc-950">{sl}</h3>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {grouped[sl].map((tl) => (
+              <div
+                key={tl.team.id}
+                className="rounded-xl border border-zinc-200 bg-white p-5 space-y-3"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-zinc-950">{tl.team.name}</span>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                      tl.utilizationPercent >= 85
+                        ? "bg-rose-100 text-rose-800"
+                        : tl.utilizationPercent >= 60
+                          ? "bg-amber-100 text-amber-800"
+                          : "bg-emerald-100 text-emerald-800"
+                    }`}
+                  >
+                    {tl.utilizationPercent}%
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-700">{tl.team.teamLead}</p>
+                <UtilizationBar percent={tl.utilizationPercent} />
+                <div className="flex justify-between text-xs text-zinc-700">
+                  <span>{tl.assignments.length} tasks</span>
+                  <span>{tl.team.capacity} capacity</span>
+                </div>
+                {tl.assignments.length > 0 && (
+                  <div className="space-y-1.5 pt-1">
+                    {tl.assignments.slice(-3).map((a, i) => (
+                      <div
+                        key={`${a.teamId}-${i}`}
+                        className="rounded-md bg-zinc-50 px-2.5 py-1.5 text-xs text-zinc-800"
+                      >
+                        <span className="font-medium">{a.complexity}</span> · {truncate(a.description, 40)}
+                      </div>
+                    ))}
+                    {tl.assignments.length > 3 && (
+                      <p className="text-xs text-zinc-600">
+                        +{tl.assignments.length - 3} more
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -225,6 +433,7 @@ export default function TriageApp() {
 
   const tabs: { id: TabId; label: string; count?: number }[] = [
     { id: "submit", label: "Submit enquiry" },
+    { id: "dashboard", label: "Dashboard" },
     { id: "batch", label: "Batch demo", count: batchResults.length || undefined },
     {
       id: "review",
@@ -239,11 +448,10 @@ export default function TriageApp() {
         <p className="text-sm font-medium uppercase tracking-wide text-blue-700">
           AIVC Take Home
         </p>
-        <h1 className="text-3xl font-semibold text-zinc-900">Intake Triage Agent</h1>
-        <p className="max-w-3xl text-zinc-600">
+        <h1 className="text-3xl font-semibold text-zinc-950">Intake Triage Agent</h1>
+        <p className="max-w-3xl text-zinc-800">
           Classify inbound enquiries by service line and complexity, then route them
-          to the right team lead with deterministic business rules and human-review
-          fallbacks.
+          to the right team with load-balanced assignment and human-review fallbacks.
         </p>
       </header>
 
@@ -256,12 +464,12 @@ export default function TriageApp() {
             className={`rounded-t-lg px-4 py-2 text-sm font-medium transition-colors ${
               activeTab === tab.id
                 ? "bg-white text-blue-700 ring-1 ring-zinc-200 ring-b-white"
-                : "text-zinc-600 hover:text-zinc-900"
+                : "text-zinc-800 hover:text-zinc-950"
             }`}
           >
             {tab.label}
             {tab.count !== undefined && (
-              <span className="ml-2 rounded-full bg-zinc-100 px-2 py-0.5 text-xs">
+              <span className="ml-2 rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-800">
                 {tab.count}
               </span>
             )}
@@ -279,7 +487,7 @@ export default function TriageApp() {
         <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
           <form onSubmit={submitSingle} className="grid gap-4">
             <div>
-              <label className="mb-1 block text-sm font-medium text-zinc-700">
+              <label className="mb-1 block text-sm font-medium text-zinc-900">
                 Description
               </label>
               <textarea
@@ -292,14 +500,14 @@ export default function TriageApp() {
                     description: event.target.value,
                   }))
                 }
-                className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none ring-blue-500 focus:ring-2"
+                className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none ring-blue-500 focus:ring-2"
                 placeholder="Describe what the client needs..."
               />
             </div>
 
             <div className="grid gap-4 sm:grid-cols-3">
               <div>
-                <label className="mb-1 block text-sm font-medium text-zinc-700">
+                <label className="mb-1 block text-sm font-medium text-zinc-900">
                   Industry
                 </label>
                 <input
@@ -311,11 +519,11 @@ export default function TriageApp() {
                       industry: event.target.value,
                     }))
                   }
-                  className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none ring-blue-500 focus:ring-2"
+                  className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none ring-blue-500 focus:ring-2"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-zinc-700">
+                <label className="mb-1 block text-sm font-medium text-zinc-900">
                   Company size
                 </label>
                 <input
@@ -327,11 +535,11 @@ export default function TriageApp() {
                       companySize: event.target.value,
                     }))
                   }
-                  className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none ring-blue-500 focus:ring-2"
+                  className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none ring-blue-500 focus:ring-2"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-zinc-700">
+                <label className="mb-1 block text-sm font-medium text-zinc-900">
                   Urgency
                 </label>
                 <select
@@ -342,7 +550,7 @@ export default function TriageApp() {
                       urgency: event.target.value as EnquiryInput["urgency"],
                     }))
                   }
-                  className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none ring-blue-500 focus:ring-2"
+                  className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none ring-blue-500 focus:ring-2"
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -364,10 +572,12 @@ export default function TriageApp() {
         </section>
       )}
 
+      {activeTab === "dashboard" && <DashboardView />}
+
       {activeTab === "batch" && (
         <section className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-zinc-600">
+            <p className="text-sm text-zinc-800">
               Run all {syntheticEnquiries.length} synthetic enquiries through the
               triage pipeline.
             </p>
@@ -386,12 +596,12 @@ export default function TriageApp() {
 
       {activeTab === "review" && (
         <section className="space-y-4">
-          <p className="text-sm text-zinc-600">
+          <p className="text-sm text-zinc-800">
             Enquiries flagged for human review due to low confidence, ambiguity,
             complexity, or urgency rules.
           </p>
           {batchResults.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-zinc-300 p-8 text-center text-zinc-500">
+            <p className="rounded-xl border border-dashed border-zinc-300 p-8 text-center text-zinc-700">
               Run batch triage first to populate the review queue.
             </p>
           ) : (

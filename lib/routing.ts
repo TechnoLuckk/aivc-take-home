@@ -6,39 +6,9 @@ import type {
   RoutingResult,
   ServiceLine,
 } from "./types";
+import { getLoadBalancedTeam, addAssignment, addIntakeReviewAssignment } from "./teams";
 
 const INTAKE_REVIEW_QUEUE = "intake-review@firm.com";
-
-const TEAM_LEADS: Record<
-  ServiceLine,
-  Record<Complexity, string>
-> = {
-  Strategy: {
-    simple: "alice.chen@firm.com",
-    moderate: "bob.martinez@firm.com",
-    complex: "carol.williams@firm.com",
-  },
-  Operations: {
-    simple: "dan.kim@firm.com",
-    moderate: "elena.rodriguez@firm.com",
-    complex: "frank.obrien@firm.com",
-  },
-  Technology: {
-    simple: "grace.patel@firm.com",
-    moderate: "henry.nguyen@firm.com",
-    complex: "isabel.torres@firm.com",
-  },
-  Compliance: {
-    simple: "james.foster@firm.com",
-    moderate: "karen.singh@firm.com",
-    complex: "liam.campbell@firm.com",
-  },
-  "HR Advisory": {
-    simple: "maria.gonzalez@firm.com",
-    moderate: "nathan.brooks@firm.com",
-    complex: "olivia.hayes@firm.com",
-  },
-};
 
 const BASE_SLA_HOURS: Record<Complexity, number> = {
   simple: 48,
@@ -73,7 +43,6 @@ export function shouldRouteToIntakeReview(
   classification: Classification,
   input: EnquiryInput,
 ): boolean {
-  if (classification.confidence < 0.7) return true;
   if (classification.needsHumanReview) return true;
   if (classification.complexity === "complex") return true;
   if (input.urgency === "high" && classification.complexity === "moderate") {
@@ -89,22 +58,38 @@ export function applyRoutingRules(
   const routeToIntakeReview = shouldRouteToIntakeReview(classification, input);
 
   if (routeToIntakeReview) {
+    addIntakeReviewAssignment(
+      classification.complexity,
+      derivePriority(input.urgency, classification.complexity, true),
+      input.description,
+    );
     return {
       assignedTeamLead: INTAKE_REVIEW_QUEUE,
+      assignedTeamId: "intake-review",
+      assignedTeamName: "Intake Review Queue",
       slaHours: 4,
       priority: "normal",
       routeToIntakeReview: true,
     };
   }
 
-  const assignedTeamLead =
-    TEAM_LEADS[classification.serviceLine][classification.complexity];
+  const team = getLoadBalancedTeam(classification.serviceLine);
+
+  addAssignment(
+    team.id,
+    classification.complexity,
+    derivePriority(input.urgency, classification.complexity, false),
+    input.description,
+  );
+
   const slaHours = Math.round(
     BASE_SLA_HOURS[classification.complexity] * urgencyBoost(input.urgency),
   );
 
   return {
-    assignedTeamLead,
+    assignedTeamLead: team.teamLead,
+    assignedTeamId: team.id,
+    assignedTeamName: team.name,
     slaHours,
     priority: derivePriority(
       input.urgency,

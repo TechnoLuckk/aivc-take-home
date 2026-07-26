@@ -60,7 +60,9 @@ export async function triageEnquiry(input: EnquiryInput): Promise<TriageResult> 
   }
 
   try {
+    // Classification AI provider is currently Groq, but we may switch to a different provider in the future.
     const classification = await withTimeout(classifyWithGroq(input), LLM_TIMEOUT_MS);
+    // We check for certain conditions to route to manual review if needed. If not needed, we route to a load balanced team.
     return {
       input,
       classification,

@@ -120,13 +120,18 @@ export function classifyWithKeywords(
 
   const complexity = inferComplexity(input);
 
+  const needsHumanReview = confidence < 0.6;
+
+  const reasoning = needsHumanReview
+    ? `Keyword fallback suggested ${parsedServiceLine.data} (${complexity}) with ${(confidence * 100).toFixed(0)}% confidence. LLM unavailable \u2014 flagged for human review.`
+    : `Keyword-based fallback classification used. Confidence ${(confidence * 100).toFixed(0)}% \u2014 auto-routed.`;
+
   return {
     serviceLine: parsedServiceLine.data,
     complexity,
     confidence,
-    reasoning:
-      "Keyword-based fallback classification used because the LLM response was unavailable or invalid.",
+    reasoning,
     suggestedTags: ["fallback", "needs-validation"],
-    needsHumanReview: true,
+    needsHumanReview,
   };
 }

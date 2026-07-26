@@ -1,5 +1,6 @@
 import { triageEnquiry } from "@/lib/triage";
 import { enquiryInputSchema } from "@/lib/types";
+import { getAllTeamLoads } from "@/lib/teams";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -32,6 +33,16 @@ export async function POST(request: Request) {
       },
       { status: 400 },
     );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unexpected error";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
+export async function GET() {
+  try {
+    const loads = getAllTeamLoads();
+    return NextResponse.json({ teams: loads });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unexpected error";
     return NextResponse.json({ error: message }, { status: 500 });

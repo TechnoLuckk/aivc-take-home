@@ -37,8 +37,39 @@ export type Priority = "low" | "normal" | "high" | "urgent";
 
 export type TriageSource = "llm" | "fallback" | "manual_review";
 
+export interface Team {
+  id: string;
+  name: string;
+  serviceLine: ServiceLine;
+  teamLead: string;
+  capacity: number;
+}
+
+export interface TeamAssignment {
+  teamId: string;
+  complexity: Complexity;
+  priority: Priority;
+  description: string;
+  assignedAt: string;
+}
+
+export interface TeamLoad {
+  team: Team;
+  assignments: TeamAssignment[];
+  currentLoad: number;
+  utilizationPercent: number;
+}
+
+export const COMPLEXITY_WEIGHT: Record<Complexity, number> = {
+  simple: 1,
+  moderate: 2,
+  complex: 3,
+};
+
 export interface RoutingResult {
   assignedTeamLead: string;
+  assignedTeamId: string;
+  assignedTeamName: string;
   slaHours: number;
   priority: Priority;
   routeToIntakeReview: boolean;
